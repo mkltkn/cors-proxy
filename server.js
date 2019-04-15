@@ -14,6 +14,7 @@ app.use(cors());
 app.get("/json", (req, res) => {
   console.log(req.query);
 
+  // Change here with your url
   let jsonUrl = 'Your URL Will Be Here';
 
   console.log(jsonUrl);
@@ -30,7 +31,8 @@ app.get("/json", (req, res) => {
       const page = await browser.newPage();
   
       await page.goto( jsonUrl, { waitUntil: 'networkidle2' });
-  
+
+      // Yous should change this tag too
       const element = await page.$("pre");
   
       text = await page.evaluate(element => element.textContent, element);
