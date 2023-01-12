@@ -1,63 +1,28 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const puppeteer = require('puppeteer');
 const cors = require('cors');
- 
+const getJsonData = require('./getJsonData');
+
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
- 
 app.use(cors());
 
-app.get("/json", (req, res) => {
-  console.log(req.query);
-
-  // Change here with your url
-  let jsonUrl = 'Your URL Will Be Here';
-
-  console.log(jsonUrl);
-
-  (async () => {
+app.get("/json", async (req, res) => {
     try {
-      const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
-      })
-
-      let text = '';
-  
-      const page = await browser.newPage();
-  
-      await page.goto( jsonUrl, { waitUntil: 'networkidle2' });
-
-      // Yous should change this tag too
-      const element = await page.$("pre");
-  
-      text = await page.evaluate(element => element.textContent, element);
-  
-      console.log(text)
-  
-    await browser.close();
-
-    return res.send(text);
-  
+        const data = await getJsonData.getJsonData(req.query.jsonUrl);
+        res.send(data);
     } catch (err) {
-      console.error(err);
-      process.exit();
+        console.error(err);
+        res.status(500).send('Error getting JSON data');
     }
-  })()
-
 });
 
-app.all("*", function (req, res, next) {
-    return res.send('page not found');
-    next();
+app.all("*", function (req, res) {
+    res.status(404).send('Page not found');
 });
- 
+
 app.listen(8090, function () {
-    console.log('Node app is running on port 8090');
+    console.log('Server running on port 8090');
 });
- 
+
 module.exports = app;
